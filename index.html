@@ -141,22 +141,6 @@
         Este primer caso lo queríamos utilzar como ejemplo para la impresión en 3D. El diseño como tal tiene algunos defectos 
         como por ejemplo el tamaño de los botones y la pantalla es muy pequeña.  
       </p> 
-            <p>
-        Este primer caso lo queríamos utilzar como ejemplo para la impresión en 3D. El diseño como tal tiene algunos defectos 
-        como por ejemplo el tamaño de los botones y la pantalla es muy pequeña.  
-      </p> 
-            <p>
-        Este primer caso lo queríamos utilzar como ejemplo para la impresión en 3D. El diseño como tal tiene algunos defectos 
-        como por ejemplo el tamaño de los botones y la pantalla es muy pequeña.  
-      </p> 
-            <p>
-        Este primer caso lo queríamos utilzar como ejemplo para la impresión en 3D. El diseño como tal tiene algunos defectos 
-        como por ejemplo el tamaño de los botones y la pantalla es muy pequeña.  
-      </p> 
-            <p>
-        Este primer caso lo queríamos utilzar como ejemplo para la impresión en 3D. El diseño como tal tiene algunos defectos 
-        como por ejemplo el tamaño de los botones y la pantalla es muy pequeña.  
-      </p> 
       <img src="imagen 1.png" alt="Modelo 3D">
       <p>
         Este segundo caso lo queríamos utilzar como ejemplo para la impresión en 3D. El diseño de este caso es bueno, pero el teclado 
@@ -222,7 +206,95 @@
     <section id="codigo">
       <h2>Código De Arduino</h2> 
       <pre>
-        // Código de Arduino aquí (sin cambios)
+        #include Wire.h
+        #include LiquidCrystal_I2C.h 
+        #include SoftwareSerial.h 
+        #include DFRobotDFPlayerMini.h 
+
+        // LCD I2C (dirección 0x27, 16 columnas, 2 filas) 
+        LiquidCrystal_I2C lcd(0x27, 16, 2); 
+
+        // DFPlayer - conexión por SoftwareSerial 
+        SoftwareSerial mySerial(10, 11); // RX, TX del Arduino hacia 
+        DFPlayer 
+        DFRobotDFPlayerMini player; 
+        
+        // Teclado 4x4 sin librería 
+        const byte filas[4] = {9, 8, 7, 6}; 
+        const byte columnas[4] = {5, 4, 3, 2}; 
+        
+        char teclas[4][4] = { 
+        {'1','2','3','+'}, 
+        {'4','5','6','-'}, 
+        {'7','8','9','*'}, 
+        {'C','0','=','/'} 
+        }; 
+        
+        void setup() { 
+        Serial.begin(9600); 
+        
+        // LCD 
+        lcd.begin(16, 2); 
+        lcd.backlight(); 
+        lcd.setCursor(0, 0); 
+        lcd.print("Calculadora"); 
+        
+        // DFPlayer 
+        mySerial.begin(9600); 
+        if (!player.begin(mySerial)) { 
+          lcd.clear(); 
+          lcd.print("Error DFPlayer"); 
+          while (true); 
+        } 
+        player.volume(25); 
+        
+        // Volumen de 0 a 30 
+        
+        // Pines del teclado for (int i = 0; i < 4; i++) { 
+          pinMode(filas[i], OUTPUT); 
+          digitalWrite(filas[i], HIGH); 
+        } 
+        for (int i = 0; i < 4; i++) { 
+          pinMode(columnas[i], INPUT_PULLUP); 
+        } 
+        
+        delay(1000); 
+        lcd.clear(); 
+      }
+      
+      void loop() { 
+      for (int f = 0; f < 4; f++) { 
+        digitalWrite(filas[f], LOW); 
+        for (int c = 0; c < 4; c++) { 
+          if (digitalRead(columnas[c]) == LOW) { 
+            char tecla = teclas[f][c]; 
+            lcd.setCursor(0, 0); lcd.print("Tecla: "); 
+            lcd.print(tecla); 
+            reproducir(tecla); 
+            delay(300); // Antirrebote 
+            lcd.clear(); 
+            }
+          } 
+          digitalWrite(filas[f], HIGH); 
+        } 
+      } 
+      void reproducir(char tecla) { 
+        int num = 0; 
+        switch(tecla) { 
+          case '0': num = 1; 
+          break; case '1': num = 2; 
+          break; case '2': num = 3; 
+          break; case '3': num = 4; 
+          break; case '4': num = 5; 
+          break; case '5': num = 6; 
+          break; case '6': num = 7; 
+          break; case '7': num = 8; 
+          break; 
+        } 
+        if (num > 0) { 
+          player.play(num); // Reproduce 0001.mp3 hasta 0016.mp3 según número 
+        } 
+      }
       </pre>
       <p>Para el código completo contacta con el siguiente contacto: 11 5410-7365. </p>
     </section>
